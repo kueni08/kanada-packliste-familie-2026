@@ -1,5 +1,5 @@
-const CACHE="kanada-packliste-v6";
-const CORE=["./","./index.html","./styles.css","./extras.css","./sortable.min.js?v=1","./app.js?v=6","./config.js","./manifest.webmanifest","./icon.svg"];
+const CACHE="kanada-packliste-v7";
+const CORE=["./","./index.html","./styles.css","./extras.css","./sortable.min.js?v=2","./app.js?v=7","./config.js","./manifest.webmanifest","./icon.svg"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",event=>{
