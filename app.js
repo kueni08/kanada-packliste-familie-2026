@@ -7,6 +7,7 @@ const db=configured&&window.supabase?window.supabase.createClient(cfg.supabaseUr
 const els={tabs:$("#ownerTabs"),list:$("#list"),search:$("#searchInput"),filter:$("#statusFilter"),sync:$("#syncBanner"),overallBar:$("#overallBar"),overallPercent:$("#overallPercent"),overallLabel:$("#overallLabel"),userButton:$("#userButton"),login:$("#loginDialog"),loginForm:$("#loginForm"),loginError:$("#loginError"),add:$("#addDialog"),addForm:$("#addForm"),confirm:$("#confirmDialog"),tripSelect:$("#tripSelect"),activity:$("#activityDialog"),activityList:$("#activityList"),data:$("#dataDialog"),tripForm:$("#tripForm"),dataMessage:$("#dataMessage")};
 
 function escapeHtml(value){const d=document.createElement("div");d.textContent=value??"";return d.innerHTML}
+function escapeAttr(value){return escapeHtml(value).replaceAll('"','&quot;')}
 function cacheKey(){return `pack-items-${state.familyId||"local"}-${state.tripId||"none"}`}
 function cacheItems(){if(state.tripId)localStorage.setItem(cacheKey(),JSON.stringify(state.items))}
 function loadCache(){state.items=JSON.parse(localStorage.getItem(cacheKey())||"[]")}
@@ -31,7 +32,7 @@ function render(){
   const groups=rows.reduce((result,item)=>((result[item.category]??=[]).push(item),result),{});
   els.list.innerHTML=Object.keys(groups).length?Object.entries(groups).sort(([a],[b])=>a.localeCompare(b,"de")).map(([category,items])=>{
     const n=items.filter(i=>i.done).length;
-    return `<details class="category" open><summary><span>${escapeHtml(category)}</span><span class="meta">${n}/${items.length}</span></summary><div class="items">${items.sort((a,b)=>(a.position??0)-(b.position??0)||a.label.localeCompare(b.label,"de")).map(item=>`<div class="item ${item.done?"done":""}" data-id="${item.id}"><input type="checkbox" ${item.done?"checked":""} aria-label="${escapeHtml(item.label)} abhaken"><div><div class="item__label">${escapeHtml(item.label)}</div>${item.checked_by?`<div class="item__by">${item.done?"Eingepackt":"Wieder geöffnet"} von ${escapeHtml(item.checked_by)} · ${formatStamp(item.checked_at||item.updated_at)}</div>`:""}</div><button class="delete" aria-label="${escapeHtml(item.label)} löschen">×</button></div>`).join("")}</div></details>`}).join(""):$("#emptyTemplate").innerHTML;
+    return `<details class="category" open><summary><span>${escapeHtml(category)}</span><span class="meta">${n}/${items.length}</span></summary><div class="category-tools"><button class="group-add" type="button" data-category="${escapeAttr(category)}">＋ Mehrere ergänzen</button><button class="group-delete" type="button" data-category="${escapeAttr(category)}" aria-label="Gruppe ${escapeAttr(category)} löschen">− Gruppe</button></div><div class="items">${items.sort((a,b)=>(a.position??0)-(b.position??0)||a.label.localeCompare(b.label,"de")).map(item=>`<div class="item ${item.done?"done":""}" data-id="${item.id}"><input type="checkbox" ${item.done?"checked":""} aria-label="${escapeAttr(item.label)} abhaken"><div><div class="item__label">${escapeHtml(item.label)}</div>${item.checked_by?`<div class="item__by">${item.done?"Eingepackt":"Wieder geöffnet"} von ${escapeHtml(item.checked_by)} · ${formatStamp(item.checked_at||item.updated_at)}</div>`:""}</div><button class="delete" aria-label="${escapeAttr(item.label)} löschen">×</button></div>`).join("")}</div></details>`}).join(""):$("#emptyTemplate").innerHTML;
 }
 function renderEvents(){
   const icons={created:"＋",packed:"✓",unpacked:"↶",deleted:"×"};
@@ -80,6 +81,26 @@ async function writeRows(table,rows){
   savePending();if(state.pending.length)setSync("offline",`${state.pending.length} Änderung(en) warten`);
 }
 async function mutateItem(item){const index=state.items.findIndex(i=>i.id===item.id);if(index>=0)state.items[index]={...state.items[index],...item};else state.items.push(item);cacheItems();render();await writeRow("packing_items",item)}
+function parseLabels(value){
+  const seen=new Set();
+  return String(value||"").split(/[\n,;]+/).map(label=>label.trim()).filter(label=>{const key=label.toLocaleLowerCase("de");if(!label||seen.has(key))return false;seen.add(key);return true})
+}
+function updateCategorySuggestions(owner){
+  const categories=[...new Set(activeItems().filter(i=>i.owner===owner).map(i=>i.category))].sort((a,b)=>a.localeCompare(b,"de"));
+  $("#categorySuggestions").innerHTML=categories.map(category=>`<option value="${escapeAttr(category)}">`).join("");
+}
+function updateAddPreview(){
+  const count=parseLabels($("#addLabels").value).length;
+  $("#addPreview").textContent=count?`${count} ${count===1?"Gegenstand wird":"Gegenstände werden"} hinzugefügt.`:"Noch keine Gegenstände eingegeben.";
+}
+function openAddDialog({owner=state.owner,category="",newGroup=false}={}){
+  els.addForm.reset();
+  $("#addOwner").value=owner;
+  $("#addCategory").value=category;
+  $("#addTitle").textContent=newGroup?"Neue Gruppe anlegen":category?`Zu „${category}“ ergänzen`:"Mehrere Dinge ergänzen";
+  updateCategorySuggestions(owner);updateAddPreview();els.add.showModal();
+  setTimeout(()=>$(category?"#addLabels":"#addCategory").focus(),0);
+}
 async function flushPending(){
   if(!navigator.onLine||!db||!state.pending.length)return;
   const queue=[...state.pending],failed=[];for(const op of queue){const {error}=await db.from(op.table).upsert(op.row,{onConflict:"id"});if(error)failed.push(op)}
@@ -118,14 +139,35 @@ els.tabs.addEventListener("click",event=>{const button=event.target.closest("[da
 els.search.addEventListener("input",event=>{state.query=event.target.value;render()});els.filter.addEventListener("change",event=>{state.filter=event.target.value;render()});
 els.tripSelect.addEventListener("change",event=>switchTrip(event.target.value));
 els.list.addEventListener("change",event=>{if(!event.target.matches('input[type="checkbox"]'))return;const id=event.target.closest(".item").dataset.id,old=state.items.find(i=>i.id===id),now=new Date().toISOString();mutateItem({...old,done:event.target.checked,checked_by:state.userName,checked_at:now,updated_at:now})});
-let deleteId=null;els.list.addEventListener("click",event=>{if(!event.target.closest(".delete"))return;deleteId=event.target.closest(".item").dataset.id;$("#confirmText").textContent=`„${state.items.find(i=>i.id===deleteId)?.label}“ wird für alle entfernt.`;els.confirm.showModal()});
-$("#confirmDelete").addEventListener("click",()=>{const old=state.items.find(i=>i.id===deleteId),now=new Date().toISOString();if(old)mutateItem({...old,checked_by:state.userName,checked_at:now,deleted_at:now,updated_at:now})});
-$("#addButton").addEventListener("click",()=>{$("#addOwner").value=state.owner;const cats=[...new Set(state.items.filter(i=>i.owner===state.owner).map(i=>i.category))];$("#categorySuggestions").innerHTML=cats.map(c=>`<option value="${escapeHtml(c)}">`).join("");els.add.showModal()});
+let deleteTarget=null;els.list.addEventListener("click",event=>{
+  const addGroup=event.target.closest(".group-add"),removeGroup=event.target.closest(".group-delete"),removeItem=event.target.closest(".delete");
+  if(addGroup){openAddDialog({owner:state.owner,category:addGroup.dataset.category});return}
+  if(removeGroup){const category=removeGroup.dataset.category,count=activeItems().filter(i=>i.owner===state.owner&&i.category===category).length;deleteTarget={type:"group",owner:state.owner,category};$("#confirmTitle").textContent="Ganze Gruppe löschen?";$("#confirmText").textContent=`„${category}“ mit ${count} ${count===1?"Eintrag":"Einträgen"} wird für alle entfernt.`;els.confirm.showModal();return}
+  if(removeItem){const id=removeItem.closest(".item").dataset.id;deleteTarget={type:"item",id};$("#confirmTitle").textContent="Eintrag löschen?";$("#confirmText").textContent=`„${state.items.find(i=>i.id===id)?.label}“ wird für alle entfernt.`;els.confirm.showModal()}
+});
+$("#confirmDelete").addEventListener("click",async()=>{
+  if(!deleteTarget)return;const now=new Date().toISOString();
+  if(deleteTarget.type==="item"){const old=state.items.find(i=>i.id===deleteTarget.id);if(old)await mutateItem({...old,checked_by:state.userName,checked_at:now,deleted_at:now,updated_at:now})}
+  else{const rows=activeItems().filter(i=>i.owner===deleteTarget.owner&&i.category===deleteTarget.category).map(item=>({...item,checked_by:state.userName,checked_at:now,deleted_at:now,updated_at:now}));state.items=state.items.map(item=>rows.find(row=>row.id===item.id)||item);cacheItems();render();await writeRows("packing_items",rows);setSync(state.pending.length?"offline":"online",`${rows.length} ${rows.length===1?"Eintrag":"Einträge"} aus „${deleteTarget.category}“ entfernt`)}
+  deleteTarget=null;
+});
+$("#addButton").addEventListener("click",()=>openAddDialog());
+$("#addGroupButton").addEventListener("click",()=>openAddDialog({newGroup:true}));
+$("#addOwner").addEventListener("change",event=>updateCategorySuggestions(event.target.value));
+$("#addLabels").addEventListener("input",updateAddPreview);
 document.querySelectorAll("[data-close]").forEach(button=>button.addEventListener("click",()=>button.closest("dialog").close()));
-els.addForm.addEventListener("submit",event=>{event.preventDefault();if(!state.tripId)return;const now=new Date().toISOString();mutateItem({id:crypto.randomUUID(),family_id:state.familyId,trip_id:state.tripId,owner:$("#addOwner").value,category:$("#addCategory").value.trim(),label:$("#addLabel").value.trim(),done:false,checked_by:null,checked_at:null,created_by:state.userName,position:Date.now(),created_at:now,updated_at:now,deleted_at:null});els.addForm.reset();els.add.close()});
+els.addForm.addEventListener("submit",async event=>{
+  event.preventDefault();if(!state.tripId)return;
+  const labels=parseLabels($("#addLabels").value),owner=$("#addOwner").value,category=$("#addCategory").value.trim(),button=event.submitter;
+  if(labels.length>50){$("#addLabels").setCustomValidity("Bitte höchstens 50 Gegenstände auf einmal hinzufügen.");$("#addLabels").reportValidity();return}$("#addLabels").setCustomValidity("");
+  if(!labels.length||!category)return;
+  const now=new Date().toISOString(),base=Date.now()*100,rows=labels.map((label,index)=>({id:crypto.randomUUID(),family_id:state.familyId,trip_id:state.tripId,owner,category,label:label.slice(0,160),done:false,checked_by:null,checked_at:null,created_by:state.userName,position:base+index,created_at:now,updated_at:now,deleted_at:null})),pendingBefore=state.pending.length;
+  if(button)button.disabled=true;state.items.push(...rows);cacheItems();render();await writeRows("packing_items",rows);els.add.close();setSync(state.pending.length>pendingBefore?"offline":"online",`${rows.length} ${rows.length===1?"Gegenstand":"Gegenstände"} zu „${category}“ hinzugefügt`);if(button)button.disabled=false;
+});
 els.loginForm.addEventListener("submit",async event=>{event.preventDefault();els.loginError.hidden=true;const button=event.submitter;button.disabled=true;button.textContent="Wird verbunden …";try{await joinFamily($("#familyCode").value,$("#loginName").value);await loadTrips();await loadRemoteTrip();subscribe();els.login.close();els.userButton.querySelector("span").textContent=state.userName}catch(error){els.loginError.textContent=error.message.includes("Ungültiger")?error.message:"Verbindung fehlgeschlagen. Bitte Code und Internet prüfen.";els.loginError.hidden=false}finally{button.disabled=false;button.textContent="Gemeinsame Liste öffnen"}});
 els.userButton.addEventListener("click",()=>{localStorage.removeItem("pack-code-ok");els.login.showModal()});
 $("#activityButton").addEventListener("click",()=>{renderEvents();els.activity.showModal()});$("#dataButton").addEventListener("click",()=>{els.dataMessage.hidden=true;els.data.showModal()});
 els.tripForm.addEventListener("submit",async event=>{event.preventDefault();const button=event.submitter,source=$("#copyCurrent").checked?activeItems().map(i=>({...i,done:false,checked_by:null,checked_at:null})):[];if(button)button.disabled=true;try{const trip=await createTrip({name:$("#tripName").value.trim(),startDate:$("#tripStart").value,endDate:$("#tripEnd").value,copyItems:source});els.tripForm.reset();$("#copyCurrent").checked=true;els.data.close();setSync("online",`„${trip.name}“ wurde erstellt`)}catch(error){showDataMessage(error.message,true)}finally{if(button)button.disabled=false}});
 $("#exportButton").addEventListener("click",()=>exportTrip().catch(error=>showDataMessage(error.message,true)));$("#importButton").addEventListener("click",()=>$("#importFile").click());$("#importFile").addEventListener("change",async event=>{const file=event.target.files[0];if(!file)return;try{await importTrip(file)}catch(error){showDataMessage(error.message,true)}finally{event.target.value=""}});
 window.addEventListener("online",flushPending);window.addEventListener("offline",()=>setSync("offline","Offline – Änderungen werden vorgemerkt"));if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));boot();
+
