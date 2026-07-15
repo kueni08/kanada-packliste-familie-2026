@@ -104,7 +104,7 @@ begin
   select * into f from public.families where code_hash=encode(extensions.digest(upper(trim(p_code)),'sha256'),'hex');
   if f.id is null then raise exception 'Ungültiger Familiencode'; end if;
   insert into public.family_members(family_id,user_id,display_name) values(f.id,auth.uid(),p_display_name)
-  on conflict(family_id,user_id) do update set display_name=excluded.display_name;
+  on conflict on constraint family_members_pkey do update set display_name=excluded.display_name;
   return query select f.id,f.name;
 end $$;
 revoke all on function public.join_family(text,text) from public;
