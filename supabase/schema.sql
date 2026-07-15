@@ -61,6 +61,28 @@ create table if not exists public.packing_events (
 );
 create index if not exists packing_events_trip_idx on public.packing_events(trip_id,occurred_at desc);
 
+create table if not exists public.packing_templates (
+  id uuid primary key default gen_random_uuid(),
+  family_id uuid not null references public.families(id) on delete cascade,
+  name text not null check (char_length(name) between 1 and 80),
+  created_by text,
+  created_at timestamptz not null default now(),
+  unique(id,family_id)
+);
+create index if not exists packing_templates_family_idx on public.packing_templates(family_id,created_at desc);
+
+create table if not exists public.packing_template_items (
+  id uuid primary key default gen_random_uuid(),
+  family_id uuid not null references public.families(id) on delete cascade,
+  template_id uuid not null,
+  owner text not null check (owner in ('Allgemein','Marc','Nici','Nils','Lou','Laila')),
+  category text not null check (char_length(category) between 1 and 80),
+  label text not null check (char_length(label) between 1 and 160),
+  position bigint not null default 0,
+  foreign key (template_id,family_id) references public.packing_templates(id,family_id) on delete cascade
+);
+create index if not exists packing_template_items_template_idx on public.packing_template_items(template_id,position);
+
 create schema if not exists private;
 revoke all on schema private from public;
 grant usage on schema private to authenticated;
@@ -110,11 +132,29 @@ end $$;
 revoke all on function public.join_family(text,text) from public;
 grant execute on function public.join_family(text,text) to authenticated;
 
+create or replace function public.get_family_templates(p_family_id uuid)
+returns jsonb language plpgsql security definer set search_path=public
+as $$
+begin
+  if not private.is_family_member(p_family_id) then raise exception 'Nicht berechtigt'; end if;
+  return coalesce((
+    select jsonb_agg(jsonb_build_object(
+      'id',t.id,'family_id',t.family_id,'name',t.name,'created_by',t.created_by,'created_at',t.created_at,
+      'items',coalesce((select jsonb_agg(jsonb_build_object('id',i.id,'family_id',i.family_id,'template_id',i.template_id,'owner',i.owner,'category',i.category,'label',i.label,'position',i.position) order by i.position) from public.packing_template_items i where i.template_id=t.id),'[]'::jsonb)
+    ) order by t.created_at desc)
+    from public.packing_templates t where t.family_id=p_family_id
+  ),'[]'::jsonb);
+end $$;
+revoke all on function public.get_family_templates(uuid) from public;
+grant execute on function public.get_family_templates(uuid) to authenticated;
+
 alter table public.families enable row level security;
 alter table public.family_members enable row level security;
 alter table public.trips enable row level security;
 alter table public.packing_items enable row level security;
 alter table public.packing_events enable row level security;
+alter table public.packing_templates enable row level security;
+alter table public.packing_template_items enable row level security;
 
 drop policy if exists "members read family" on public.families;
 create policy "members read family" on public.families for select to authenticated using(private.is_family_member(id));
@@ -136,11 +176,17 @@ drop policy if exists "members delete items" on public.packing_items;
 create policy "members delete items" on public.packing_items for delete to authenticated using(private.is_family_member(family_id));
 drop policy if exists "members read events" on public.packing_events;
 create policy "members read events" on public.packing_events for select to authenticated using(private.is_family_member(family_id));
+drop policy if exists "members manage templates" on public.packing_templates;
+create policy "members manage templates" on public.packing_templates for all to authenticated using(private.is_family_member(family_id)) with check(private.is_family_member(family_id));
+drop policy if exists "members manage template items" on public.packing_template_items;
+create policy "members manage template items" on public.packing_template_items for all to authenticated using(private.is_family_member(family_id)) with check(private.is_family_member(family_id));
 
 grant select on public.families,public.family_members,public.packing_events to authenticated;
 grant select,insert,update,delete on public.trips,public.packing_items to authenticated;
+grant select,insert,update,delete on public.packing_templates,public.packing_template_items to authenticated;
 
 alter table public.packing_items replica identity full;
 alter table public.packing_events replica identity full;
 do $$ begin alter publication supabase_realtime add table public.packing_items; exception when duplicate_object then null; end $$;
 do $$ begin alter publication supabase_realtime add table public.packing_events; exception when duplicate_object then null; end $$;
+
