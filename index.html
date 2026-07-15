@@ -15,10 +15,10 @@
   <header class="hero">
     <div class="hero__top">
       <div>
-        <p class="eyebrow">21. Juli â€“ 11. August 2026</p>
+        <p class="eyebrow">21. Juli – 11. August 2026</p>
         <h1>Kanada, wir kommen!</h1>
       </div>
-      <button id="userButton" class="user-button" type="button" aria-label="Benutzer wechseln">ðŸ‘¤ <span>Gast</span></button>
+      <button id="userButton" class="user-button" type="button" aria-label="Benutzer wechseln">👤 <span>Gast</span></button>
     </div>
     <div class="overall-progress" aria-label="Gesamtfortschritt">
       <div class="overall-progress__copy"><span id="overallLabel">Noch nichts gepackt</span><strong id="overallPercent">0 %</strong></div>
@@ -28,19 +28,19 @@
 
   <main class="app-shell">
     <div id="syncBanner" class="sync-banner" role="status" aria-live="polite">
-      <span class="sync-dot"></span><span>Verbindung wird hergestellt â€¦</span>
+      <span class="sync-dot"></span><span>Verbindung wird hergestellt …</span>
     </div>
 
     <nav id="ownerTabs" class="tabs" aria-label="Packlisten"></nav>
 
     <section class="tripbar" aria-label="Reise und Daten">
-      <label><span>Aktuelle Reise</span><select id="tripSelect" aria-label="Aktuelle Reise auswÃ¤hlen"></select></label>
-      <button id="activityButton" class="compact-button" type="button">â†» AktivitÃ¤t</button>
-      <button id="dataButton" class="compact-button" type="button">â‡„ Reisen & Daten</button>
+      <label><span>Aktuelle Reise</span><select id="tripSelect" aria-label="Aktuelle Reise auswählen"></select></label>
+      <button id="activityButton" class="compact-button" type="button">↻ Aktivität</button>
+      <button id="dataButton" class="compact-button" type="button">⇄ Reisen & Daten</button>
     </section>
 
     <section class="toolbar" aria-label="Listenfilter">
-      <label class="search"><span>âŒ•</span><input id="searchInput" type="search" placeholder="Eintrag suchen â€¦"></label>
+      <label class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="Eintrag suchen …"></label>
       <select id="statusFilter" aria-label="Status filtern">
         <option value="all">Alle</option>
         <option value="open">Nur offen</option>
@@ -48,73 +48,73 @@
       </select>
     </section>
 
-    <button id="addGroupButton" class="add-group-button" type="button">ï¼‹ Neue Gruppe</button>
-    <p class="sort-hint">â ¿ Am Griff halten und ziehen, um Gruppen oder GegenstÃ¤nde zu verschieben. VerfÃ¼gbar bei Filter â€žAlleâ€œ ohne Suche.</p>
+    <button id="addGroupButton" class="add-group-button" type="button">＋ Neue Gruppe</button>
+    <p class="sort-hint">⠿ Am Griff halten und ziehen, um Gruppen oder Gegenstände zu verschieben. Verfügbar bei Filter „Alle“ ohne Suche.</p>
 
     <section id="list" class="list" aria-live="polite"></section>
 
-    <button id="addButton" class="fab" type="button" aria-label="Mehrere GegenstÃ¤nde hinzufÃ¼gen">ï¼‹</button>
+    <button id="addButton" class="fab" type="button" aria-label="Mehrere Gegenstände hinzufügen">＋</button>
   </main>
 
   <dialog id="loginDialog" class="modal" data-static="true">
     <form id="loginForm" method="dialog">
-      <div class="modal__icon">ðŸ</div>
+      <div class="modal__icon">🍁</div>
       <h2>Willkommen zur Familien-Packliste</h2>
-      <p>WÃ¤hle deinen Namen und gib den gemeinsamen Familiencode ein.</p>
+      <p>Wähle deinen Namen und gib den gemeinsamen Familiencode ein.</p>
       <label>Wer bist du?
         <select id="loginName" required>
-          <option value="">Bitte wÃ¤hlen</option>
+          <option value="">Bitte wählen</option>
           <option>Marc</option><option>Nici</option><option>Nils</option><option>Lou</option>
         </select>
       </label>
       <label>Familiencode
-        <input id="familyCode" type="password" autocomplete="off" autocapitalize="characters" required placeholder="KANADA-â€¦">
+        <input id="familyCode" type="password" autocomplete="off" autocapitalize="characters" required placeholder="KANADA-…">
       </label>
       <p id="loginError" class="form-error" hidden></p>
-      <button class="primary" type="submit">Gemeinsame Liste Ã¶ffnen</button>
-      <small>Der Code bleibt nur auf diesem GerÃ¤t gespeichert.</small>
+      <button class="primary" type="submit">Gemeinsame Liste öffnen</button>
+      <small>Der Code bleibt nur auf diesem Gerät gespeichert.</small>
     </form>
   </dialog>
 
   <dialog id="addDialog" class="modal">
     <form id="addForm" method="dialog">
-      <h2 id="addTitle">Mehrere Dinge ergÃ¤nzen</h2>
+      <h2 id="addTitle">Mehrere Dinge ergänzen</h2>
       <label>Liste<select id="addOwner" required></select></label>
       <label>Gruppe<input id="addCategory" required maxlength="80" list="categorySuggestions" placeholder="z. B. Kleidung"></label>
       <datalist id="categorySuggestions"></datalist>
       <label>Was muss mit?
         <textarea id="addLabels" required maxlength="3000" rows="7" placeholder="T-Shirts&#10;Socken&#10;Regenjacke"></textarea>
       </label>
-      <p class="form-hint">Mehrere GegenstÃ¤nde untereinander oder mit Komma bzw. Semikolon eingeben.</p>
-      <p id="addPreview" class="add-preview">Noch keine GegenstÃ¤nde eingegeben.</p>
+      <p class="form-hint">Mehrere Gegenstände untereinander oder mit Komma bzw. Semikolon eingeben.</p>
+      <p id="addPreview" class="add-preview">Noch keine Gegenstände eingegeben.</p>
       <div class="modal__actions">
         <button class="secondary" value="cancel" type="button" data-close>Abbrechen</button>
-        <button id="addSubmit" class="primary" type="submit">Alle hinzufÃ¼gen</button>
+        <button id="addSubmit" class="primary" type="submit">Alle hinzufügen</button>
       </div>
     </form>
   </dialog>
 
   <dialog id="confirmDialog" class="modal modal--small">
     <form method="dialog">
-      <h2 id="confirmTitle">Eintrag lÃ¶schen?</h2>
+      <h2 id="confirmTitle">Eintrag löschen?</h2>
       <p id="confirmText"></p>
       <div class="modal__actions">
         <button class="secondary" value="cancel">Abbrechen</button>
-        <button id="confirmDelete" class="danger" value="confirm">LÃ¶schen</button>
+        <button id="confirmDelete" class="danger" value="confirm">Löschen</button>
       </div>
     </form>
   </dialog>
 
   <dialog id="activityDialog" class="modal modal--wide">
     <form method="dialog">
-      <div class="dialog-heading"><div><p class="dialog-kicker">Nachverfolgung</p><h2>Letzte AktivitÃ¤ten</h2></div><button class="icon-button" value="close" aria-label="SchlieÃŸen">Ã—</button></div>
+      <div class="dialog-heading"><div><p class="dialog-kicker">Nachverfolgung</p><h2>Letzte Aktivitäten</h2></div><button class="icon-button" value="close" aria-label="Schließen">×</button></div>
       <div id="activityList" class="activity-list"></div>
     </form>
   </dialog>
 
   <dialog id="dataDialog" class="modal modal--wide">
     <form id="tripForm" method="dialog">
-      <div class="dialog-heading"><div><p class="dialog-kicker">FÃ¼r heute und spÃ¤ter</p><h2>Reisen & Datenaustausch</h2></div><button class="icon-button" type="button" data-close value="cancel" aria-label="SchlieÃŸen">Ã—</button></div>
+      <div class="dialog-heading"><div><p class="dialog-kicker">Für heute und später</p><h2>Reisen & Datenaustausch</h2></div><button class="icon-button" type="button" data-close value="cancel" aria-label="Schließen">×</button></div>
       <section class="modal-section">
         <h3>Neue Reise anlegen</h3>
         <label>Name der Reise<input id="tripName" required maxlength="80" placeholder="z. B. Italien 2027"></label>
@@ -124,14 +124,14 @@
       </section>
       <section class="modal-section">
         <h3>Gemeinsame Vorlagen</h3>
-        <p>Speichere die aktuelle Liste ohne HÃ¤kchen als Vorlage. Sie steht danach allen Familienmitgliedern bei einer neuen Reise zur Auswahl.</p>
+        <p>Speichere die aktuelle Liste ohne Häkchen als Vorlage. Sie steht danach allen Familienmitgliedern bei einer neuen Reise zur Auswahl.</p>
         <label>Name der Vorlage<input id="templateName" maxlength="80" placeholder="z. B. Familienurlaub mit Camper"></label>
         <button id="saveTemplateButton" class="secondary" type="button">Aktuelle Liste als Vorlage speichern</button>
         <p id="templateSummary" class="template-summary">Noch keine gemeinsame Vorlage gespeichert.</p>
       </section>
       <section class="modal-section">
         <h3>Import & Export</h3>
-        <p>Speichere eine Reise als Datei oder importiere eine frÃ¼here Packliste. HÃ¤kchen und persÃ¶nliche Tracking-Daten kÃ¶nnen auf Wunsch mitgefÃ¼hrt werden.</p>
+        <p>Speichere eine Reise als Datei oder importiere eine frühere Packliste. Häkchen und persönliche Tracking-Daten können auf Wunsch mitgeführt werden.</p>
         <label class="checkline"><input id="includeProgress" type="checkbox"> Erledigungsstand und Namen mit exportieren</label>
         <div class="button-grid"><button id="exportButton" class="secondary" type="button">Exportieren / Teilen</button><button id="importButton" class="secondary" type="button">Datei importieren</button></div>
         <input id="importFile" type="file" accept="application/json,.json" hidden>
@@ -141,13 +141,12 @@
   </dialog>
 
   <template id="emptyTemplate">
-    <div class="empty"><span>ðŸ§³</span><h2>Hier ist gerade nichts offen</h2><p>Ã„ndere den Filter oder ergÃ¤nze einen eigenen Eintrag.</p></div>
+    <div class="empty"><span>🧳</span><h2>Hier ist gerade nichts offen</h2><p>Ändere den Filter oder ergänze einen eigenen Eintrag.</p></div>
   </template>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="sortable.min.js?v=2"></script>
   <script src="config.js"></script>
-  <script type="module" src="app.js?v=7"></script>
+  <script type="module" src="app.js?v=8"></script>
 </body>
 </html>
-

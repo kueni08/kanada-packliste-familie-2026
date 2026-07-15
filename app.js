@@ -24,7 +24,7 @@ function renderTrips(){
 }
 function render(){
   const active=activeItems(),done=active.filter(i=>i.done).length,pct=active.length?Math.round(done/active.length*100):0;
-  els.overallBar.style.width=`${pct}%`;els.overallPercent.textContent=`${pct} %`;els.overallLabel.textContent=active.length?`${done} von ${active.length} gepackt`:currentTrip()?"Noch keine EintrÃ¤ge":"Reise wird geladen";
+  els.overallBar.style.width=`${pct}%`;els.overallPercent.textContent=`${pct} %`;els.overallLabel.textContent=active.length?`${done} von ${active.length} gepackt`:currentTrip()?"Noch keine Einträge":"Reise wird geladen";
   renderTrips();
   els.tabs.innerHTML=OWNERS.map(owner=>{const rows=active.filter(i=>i.owner===owner),n=rows.filter(i=>i.done).length;return `<button class="tab ${state.owner===owner?"active":""}" data-owner="${owner}">${owner}<small>${n}/${rows.length}</small></button>`}).join("");
   const q=state.query.trim().toLocaleLowerCase("de");
@@ -34,7 +34,7 @@ function render(){
   const groupPosition=category=>Math.min(...active.filter(item=>item.owner===state.owner&&item.category===category).map(item=>Number(item.position)||0));
   els.list.innerHTML=Object.keys(groups).length?Object.entries(groups).sort(([a],[b])=>groupPosition(a)-groupPosition(b)).map(([category,items])=>{
     const n=items.filter(i=>i.done).length;
-    return `<details class="category" data-category="${escapeAttr(category)}" open><summary><button class="drag-handle group-drag-handle" type="button" aria-label="Gruppe ${escapeAttr(category)} verschieben" ${canSort?"":"disabled"}>â ¿</button><span>${escapeHtml(category)}</span><span class="meta">${n}/${items.length}</span></summary><div class="category-tools"><button class="group-add" type="button" data-category="${escapeAttr(category)}">ï¼‹ Mehrere ergÃ¤nzen</button><button class="group-delete" type="button" data-category="${escapeAttr(category)}" aria-label="Gruppe ${escapeAttr(category)} lÃ¶schen">âˆ’ Gruppe</button></div><div class="items" data-category="${escapeAttr(category)}">${items.sort((a,b)=>(a.position??0)-(b.position??0)||a.label.localeCompare(b.label,"de")).map(item=>`<div class="item ${item.done?"done":""}" data-id="${item.id}"><button class="drag-handle item-drag-handle" type="button" aria-label="${escapeAttr(item.label)} verschieben" ${canSort?"":"disabled"}>â ¿</button><input type="checkbox" ${item.done?"checked":""} aria-label="${escapeAttr(item.label)} abhaken"><div><div class="item__label">${escapeHtml(item.label)}</div>${item.checked_by?`<div class="item__by">${item.done?"Eingepackt":"Wieder geÃ¶ffnet"} von ${escapeHtml(item.checked_by)} Â· ${formatStamp(item.checked_at||item.updated_at)}</div>`:""}</div><button class="delete" aria-label="${escapeAttr(item.label)} lÃ¶schen">Ã—</button></div>`).join("")}</div></details>`}).join(""):$("#emptyTemplate").innerHTML;
+    return `<details class="category" data-category="${escapeAttr(category)}" open><summary><button class="drag-handle group-drag-handle" type="button" aria-label="Gruppe ${escapeAttr(category)} verschieben" ${canSort?"":"disabled"}>⠿</button><span>${escapeHtml(category)}</span><span class="meta">${n}/${items.length}</span></summary><div class="category-tools"><button class="group-add" type="button" data-category="${escapeAttr(category)}">＋ Mehrere ergänzen</button><button class="group-delete" type="button" data-category="${escapeAttr(category)}" aria-label="Gruppe ${escapeAttr(category)} löschen">− Gruppe</button></div><div class="items" data-category="${escapeAttr(category)}">${items.sort((a,b)=>(a.position??0)-(b.position??0)||a.label.localeCompare(b.label,"de")).map(item=>`<div class="item ${item.done?"done":""}" data-id="${item.id}"><button class="drag-handle item-drag-handle" type="button" aria-label="${escapeAttr(item.label)} verschieben" ${canSort?"":"disabled"}>⠿</button><input type="checkbox" ${item.done?"checked":""} aria-label="${escapeAttr(item.label)} abhaken"><div><div class="item__label">${escapeHtml(item.label)}</div>${item.checked_by?`<div class="item__by">${item.done?"Eingepackt":"Wieder geöffnet"} von ${escapeHtml(item.checked_by)} · ${formatStamp(item.checked_at||item.updated_at)}</div>`:""}</div><button class="delete" aria-label="${escapeAttr(item.label)} löschen">×</button></div>`).join("")}</div></details>`}).join(""):$("#emptyTemplate").innerHTML;
   requestAnimationFrame(initDragAndDrop);
 }
 function initDragAndDrop(){
@@ -60,9 +60,9 @@ async function persistDomOrder(){
   state.items=state.items.map(item=>updates.find(update=>update.id===item.id)||item);cacheItems();render();await writeRows("packing_items",updates);setSync(state.pending.length?"offline":"online","Neue Reihenfolge gespeichert");
 }
 function renderEvents(){
-  const icons={created:"ï¼‹",packed:"âœ“",unpacked:"â†¶",deleted:"Ã—"};
-  const verbs={created:"hat ergÃ¤nzt",packed:"hat eingepackt",unpacked:"hat wieder geÃ¶ffnet",deleted:"hat gelÃ¶scht"};
-  els.activityList.innerHTML=state.events.length?state.events.map(event=>`<div class="activity"><span class="activity__icon">${icons[event.action]||"â€¢"}</span><div><strong>${escapeHtml(event.actor||"Unbekannt")} ${verbs[event.action]||"hat geÃ¤ndert"}</strong><span>${escapeHtml(event.item_label)} Â· ${escapeHtml(event.item_owner)}</span><small>${formatStamp(event.occurred_at)}</small></div></div>`).join(""):`<div class="empty"><span>â†»</span><h2>Noch keine AktivitÃ¤t</h2><p>Ã„nderungen an dieser Reise erscheinen hier.</p></div>`;
+  const icons={created:"＋",packed:"✓",unpacked:"↶",deleted:"×"};
+  const verbs={created:"hat ergänzt",packed:"hat eingepackt",unpacked:"hat wieder geöffnet",deleted:"hat gelöscht"};
+  els.activityList.innerHTML=state.events.length?state.events.map(event=>`<div class="activity"><span class="activity__icon">${icons[event.action]||"•"}</span><div><strong>${escapeHtml(event.actor||"Unbekannt")} ${verbs[event.action]||"hat geändert"}</strong><span>${escapeHtml(event.item_label)} · ${escapeHtml(event.item_owner)}</span><small>${formatStamp(event.occurred_at)}</small></div></div>`).join(""):`<div class="empty"><span>↻</span><h2>Noch keine Aktivität</h2><p>Änderungen an dieser Reise erscheinen hier.</p></div>`;
 }
 
 async function ensureSession(){const {data:{session}}=await db.auth.getSession();if(session)return session;const {data,error}=await db.auth.signInAnonymously();if(error)throw error;return data.session}
@@ -78,15 +78,15 @@ function renderTemplateOptions(){
   const select=$("#tripSource"),selected=select?.value||"current";if(!select)return;
   select.innerHTML=`<option value="current">Aktuelle Liste kopieren</option><option value="empty">Leere Reise</option>${state.templates.map(template=>`<option value="template:${template.id}">Vorlage: ${escapeHtml(template.name)} (${template.items.length})</option>`).join("")}`;
   select.value=[...select.options].some(option=>option.value===selected)?selected:"current";
-  $("#templateSummary").textContent=state.templates.length?`${state.templates.length} ${state.templates.length===1?"Vorlage ist":"Vorlagen sind"} fÃ¼r alle verfÃ¼gbar: ${state.templates.map(template=>`${template.name} (${template.items.length})`).join(", ")}.`:"Noch keine gemeinsame Vorlage gespeichert.";
+  $("#templateSummary").textContent=state.templates.length?`${state.templates.length} ${state.templates.length===1?"Vorlage ist":"Vorlagen sind"} für alle verfügbar: ${state.templates.map(template=>`${template.name} (${template.items.length})`).join(", ")}.`:"Noch keine gemeinsame Vorlage gespeichert.";
 }
 async function loadTemplates(){
   const {data,error}=await db.rpc("get_family_templates",{p_family_id:state.familyId});if(error)throw error;
   state.templates=Array.isArray(data)?data.map(template=>({...template,items:Array.isArray(template.items)?template.items:[]})):[];renderTemplateOptions();
 }
 async function saveCurrentTemplate(name){
-  if(!navigator.onLine)throw new Error("Vorlagen kÃ¶nnen nur mit Internetverbindung gespeichert werden.");
-  const items=activeItems();if(!items.length)throw new Error("Die aktuelle Reise enthÃ¤lt keine EintrÃ¤ge.");
+  if(!navigator.onLine)throw new Error("Vorlagen können nur mit Internetverbindung gespeichert werden.");
+  const items=activeItems();if(!items.length)throw new Error("Die aktuelle Reise enthält keine Einträge.");
   const now=new Date().toISOString(),template={id:crypto.randomUUID(),family_id:state.familyId,name:name.trim().slice(0,80),created_by:state.userName,created_at:now};
   const {error}=await db.from("packing_templates").insert(template);if(error)throw error;
   const rows=items.map(item=>({id:crypto.randomUUID(),family_id:state.familyId,template_id:template.id,owner:item.owner,category:item.category,label:item.label,position:item.position})),result=await db.from("packing_template_items").insert(rows);
@@ -107,21 +107,21 @@ function subscribe(){
     .on("postgres_changes",{event:"*",schema:"public",table:"packing_items",filter:`trip_id=eq.${state.tripId}`},payload=>{
       const row=payload.new?.id?payload.new:payload.old,index=state.items.findIndex(i=>i.id===row.id);
       if(payload.eventType==="DELETE"){if(index>=0)state.items.splice(index,1)}else if(index>=0)state.items[index]=payload.new;else state.items.push(payload.new);
-      cacheItems();render();setSync("online",`Live verbunden Â· ${state.userName}`);
+      cacheItems();render();setSync("online",`Live verbunden · ${state.userName}`);
     })
     .on("postgres_changes",{event:"INSERT",schema:"public",table:"packing_events",filter:`trip_id=eq.${state.tripId}`},payload=>{state.events.unshift(payload.new);state.events=state.events.slice(0,150);renderEvents()})
-    .subscribe(status=>{if(status==="SUBSCRIBED")setSync("online",`Live verbunden Â· ${state.userName}`)});
+    .subscribe(status=>{if(status==="SUBSCRIBED")setSync("online",`Live verbunden · ${state.userName}`)});
 }
 async function writeRow(table,row){
-  if(!navigator.onLine||!db){state.pending.push({table,row});savePending();setSync("offline",`${state.pending.length} Ã„nderung(en) warten auf Internet`);return false}
+  if(!navigator.onLine||!db){state.pending.push({table,row});savePending();setSync("offline",`${state.pending.length} Änderung(en) warten auf Internet`);return false}
   const {error}=await db.from(table).upsert(row,{onConflict:"id"});
-  if(error){state.pending.push({table,row});savePending();setSync("offline","Ã„nderung gespeichert â€“ Synchronisierung folgt");return false}
+  if(error){state.pending.push({table,row});savePending();setSync("offline","Änderung gespeichert – Synchronisierung folgt");return false}
   return true;
 }
 async function writeRows(table,rows){
-  if(!rows.length)return;if(!navigator.onLine||!db){state.pending.push(...rows.map(row=>({table,row})));savePending();setSync("offline",`${state.pending.length} Ã„nderung(en) warten auf Internet`);return}
+  if(!rows.length)return;if(!navigator.onLine||!db){state.pending.push(...rows.map(row=>({table,row})));savePending();setSync("offline",`${state.pending.length} Änderung(en) warten auf Internet`);return}
   for(let index=0;index<rows.length;index+=100){const chunk=rows.slice(index,index+100),{error}=await db.from(table).upsert(chunk,{onConflict:"id"});if(error)state.pending.push(...chunk.map(row=>({table,row})))}
-  savePending();if(state.pending.length)setSync("offline",`${state.pending.length} Ã„nderung(en) warten`);
+  savePending();if(state.pending.length)setSync("offline",`${state.pending.length} Änderung(en) warten`);
 }
 async function mutateItem(item){const index=state.items.findIndex(i=>i.id===item.id);if(index>=0)state.items[index]={...state.items[index],...item};else state.items.push(item);cacheItems();render();await writeRow("packing_items",item)}
 function parseLabels(value){
@@ -134,20 +134,20 @@ function updateCategorySuggestions(owner){
 }
 function updateAddPreview(){
   const count=parseLabels($("#addLabels").value).length;
-  $("#addPreview").textContent=count?`${count} ${count===1?"Gegenstand wird":"GegenstÃ¤nde werden"} hinzugefÃ¼gt.`:"Noch keine GegenstÃ¤nde eingegeben.";
+  $("#addPreview").textContent=count?`${count} ${count===1?"Gegenstand wird":"Gegenstände werden"} hinzugefügt.`:"Noch keine Gegenstände eingegeben.";
 }
 function openAddDialog({owner=state.owner,category="",newGroup=false}={}){
   els.addForm.reset();
   $("#addOwner").value=owner;
   $("#addCategory").value=category;
-  $("#addTitle").textContent=newGroup?"Neue Gruppe anlegen":category?`Zu â€ž${category}â€œ ergÃ¤nzen`:"Mehrere Dinge ergÃ¤nzen";
+  $("#addTitle").textContent=newGroup?"Neue Gruppe anlegen":category?`Zu „${category}“ ergänzen`:"Mehrere Dinge ergänzen";
   updateCategorySuggestions(owner);updateAddPreview();els.add.showModal();
   setTimeout(()=>$(category?"#addLabels":"#addCategory").focus(),0);
 }
 async function flushPending(){
   if(!navigator.onLine||!db||!state.pending.length)return;
   const queue=[...state.pending],failed=[];for(const op of queue){const {error}=await db.from(op.table).upsert(op.row,{onConflict:"id"});if(error)failed.push(op)}
-  state.pending=failed;savePending();if(!failed.length){await loadTrips();await loadRemoteTrip();setSync("online",`Synchronisiert Â· ${state.userName}`)}else setSync("offline",`${failed.length} Ã„nderung(en) warten`);
+  state.pending=failed;savePending();if(!failed.length){await loadTrips();await loadRemoteTrip();setSync("online",`Synchronisiert · ${state.userName}`)}else setSync("offline",`${failed.length} Änderung(en) warten`);
 }
 async function switchTrip(id){state.tripId=id;localStorage.setItem(`pack-trip-${state.familyId}`,id);loadCache();state.events=[];render();renderEvents();await loadRemoteTrip();subscribe()}
 
@@ -162,20 +162,20 @@ function exportPayload(){
   const includeProgress=$("#includeProgress").checked,trip=currentTrip();return {format:"familien-packliste",version:2,exported_at:new Date().toISOString(),trip:{name:trip.name,start_date:trip.start_date,end_date:trip.end_date},items:activeItems().map(i=>({owner:i.owner,category:i.category,label:i.label,position:i.position,...(includeProgress?{done:i.done,checked_by:i.checked_by,checked_at:i.checked_at}:{done:false})}))};
 }
 async function exportTrip(){
-  const payload=exportPayload(),safeName=currentTrip().name.toLocaleLowerCase("de").replace(/[^a-z0-9Ã¤Ã¶Ã¼]+/gi,"-").replace(/^-|-$/g,"")||"packliste",file=new File([JSON.stringify(payload,null,2)],`${safeName}.json`,{type:"application/json"});
+  const payload=exportPayload(),safeName=currentTrip().name.toLocaleLowerCase("de").replace(/[^a-z0-9äöü]+/gi,"-").replace(/^-|-$/g,"")||"packliste",file=new File([JSON.stringify(payload,null,2)],`${safeName}.json`,{type:"application/json"});
   if(navigator.canShare?.({files:[file]})){try{await navigator.share({title:`Packliste ${currentTrip().name}`,files:[file]});showDataMessage("Export wurde zum Teilen vorbereitet.");return}catch(error){if(error.name==="AbortError")return}}
   const url=URL.createObjectURL(file),link=document.createElement("a");link.href=url;link.download=file.name;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showDataMessage("Packliste wurde als JSON-Datei exportiert.");
 }
 async function importTrip(file){
-  const data=JSON.parse(await file.text());if(data?.format!=="familien-packliste"||![1,2].includes(Number(data.version))||!Array.isArray(data.items))throw new Error("Diese Datei ist keine gÃ¼ltige Familien-Packliste.");if(data.items.length>2000)throw new Error("Die Datei enthÃ¤lt zu viele EintrÃ¤ge.");
-  const imported=data.items.filter(i=>i&&OWNERS.includes(i.owner)&&i.label&&i.category).map(i=>({...i,_source:"Import"}));if(!imported.length)throw new Error("In der Datei wurden keine gÃ¼ltigen EintrÃ¤ge gefunden.");
-  const trip=await createTrip({name:`${String(data.trip?.name||"Importierte Reise").slice(0,70)} (Import)`,startDate:data.trip?.start_date,endDate:data.trip?.end_date,copyItems:imported});await loadRemoteTrip();showDataMessage(`${imported.length} EintrÃ¤ge als â€ž${trip.name}â€œ importiert.`);
+  const data=JSON.parse(await file.text());if(data?.format!=="familien-packliste"||![1,2].includes(Number(data.version))||!Array.isArray(data.items))throw new Error("Diese Datei ist keine gültige Familien-Packliste.");if(data.items.length>2000)throw new Error("Die Datei enthält zu viele Einträge.");
+  const imported=data.items.filter(i=>i&&OWNERS.includes(i.owner)&&i.label&&i.category).map(i=>({...i,_source:"Import"}));if(!imported.length)throw new Error("In der Datei wurden keine gültigen Einträge gefunden.");
+  const trip=await createTrip({name:`${String(data.trip?.name||"Importierte Reise").slice(0,70)} (Import)`,startDate:data.trip?.start_date,endDate:data.trip?.end_date,copyItems:imported});await loadRemoteTrip();showDataMessage(`${imported.length} Einträge als „${trip.name}“ importiert.`);
 }
 
 async function boot(){
   render();$("#addOwner").innerHTML=OWNERS.map(o=>`<option>${o}</option>`).join("");
   if(!configured){setSync("offline","Demo-Modus: Supabase noch nicht eingerichtet");els.login.showModal();return}
-  try{await ensureSession();state.familyId=localStorage.getItem("pack-family");if(!state.familyId||!state.userName||!localStorage.getItem("pack-code-ok")){els.login.showModal();return}await loadTrips();await loadTemplates();loadCache();render();await loadRemoteTrip();subscribe();await flushPending();els.userButton.querySelector("span").textContent=state.userName}catch(error){console.error(error);loadCache();render();setSync("offline","Offline â€“ lokaler Stand wird angezeigt")}
+  try{await ensureSession();state.familyId=localStorage.getItem("pack-family");if(!state.familyId||!state.userName||!localStorage.getItem("pack-code-ok")){els.login.showModal();return}await loadTrips();await loadTemplates();loadCache();render();await loadRemoteTrip();subscribe();await flushPending();els.userButton.querySelector("span").textContent=state.userName}catch(error){console.error(error);loadCache();render();setSync("offline","Offline – lokaler Stand wird angezeigt")}
 }
 
 els.tabs.addEventListener("click",event=>{const button=event.target.closest("[data-owner]");if(!button)return;state.owner=button.dataset.owner;render()});
@@ -186,13 +186,13 @@ let deleteTarget=null;els.list.addEventListener("click",event=>{
   const dragHandle=event.target.closest(".drag-handle"),addGroup=event.target.closest(".group-add"),removeGroup=event.target.closest(".group-delete"),removeItem=event.target.closest(".delete");
   if(dragHandle){event.preventDefault();event.stopPropagation();return}
   if(addGroup){openAddDialog({owner:state.owner,category:addGroup.dataset.category});return}
-  if(removeGroup){const category=removeGroup.dataset.category,count=activeItems().filter(i=>i.owner===state.owner&&i.category===category).length;deleteTarget={type:"group",owner:state.owner,category};$("#confirmTitle").textContent="Ganze Gruppe lÃ¶schen?";$("#confirmText").textContent=`â€ž${category}â€œ mit ${count} ${count===1?"Eintrag":"EintrÃ¤gen"} wird fÃ¼r alle entfernt.`;els.confirm.showModal();return}
-  if(removeItem){const id=removeItem.closest(".item").dataset.id;deleteTarget={type:"item",id};$("#confirmTitle").textContent="Eintrag lÃ¶schen?";$("#confirmText").textContent=`â€ž${state.items.find(i=>i.id===id)?.label}â€œ wird fÃ¼r alle entfernt.`;els.confirm.showModal()}
+  if(removeGroup){const category=removeGroup.dataset.category,count=activeItems().filter(i=>i.owner===state.owner&&i.category===category).length;deleteTarget={type:"group",owner:state.owner,category};$("#confirmTitle").textContent="Ganze Gruppe löschen?";$("#confirmText").textContent=`„${category}“ mit ${count} ${count===1?"Eintrag":"Einträgen"} wird für alle entfernt.`;els.confirm.showModal();return}
+  if(removeItem){const id=removeItem.closest(".item").dataset.id;deleteTarget={type:"item",id};$("#confirmTitle").textContent="Eintrag löschen?";$("#confirmText").textContent=`„${state.items.find(i=>i.id===id)?.label}“ wird für alle entfernt.`;els.confirm.showModal()}
 });
 $("#confirmDelete").addEventListener("click",async()=>{
   if(!deleteTarget)return;const now=new Date().toISOString();
   if(deleteTarget.type==="item"){const old=state.items.find(i=>i.id===deleteTarget.id);if(old)await mutateItem({...old,checked_by:state.userName,checked_at:now,deleted_at:now,updated_at:now})}
-  else{const rows=activeItems().filter(i=>i.owner===deleteTarget.owner&&i.category===deleteTarget.category).map(item=>({...item,checked_by:state.userName,checked_at:now,deleted_at:now,updated_at:now}));state.items=state.items.map(item=>rows.find(row=>row.id===item.id)||item);cacheItems();render();await writeRows("packing_items",rows);setSync(state.pending.length?"offline":"online",`${rows.length} ${rows.length===1?"Eintrag":"EintrÃ¤ge"} aus â€ž${deleteTarget.category}â€œ entfernt`)}
+  else{const rows=activeItems().filter(i=>i.owner===deleteTarget.owner&&i.category===deleteTarget.category).map(item=>({...item,checked_by:state.userName,checked_at:now,deleted_at:now,updated_at:now}));state.items=state.items.map(item=>rows.find(row=>row.id===item.id)||item);cacheItems();render();await writeRows("packing_items",rows);setSync(state.pending.length?"offline":"online",`${rows.length} ${rows.length===1?"Eintrag":"Einträge"} aus „${deleteTarget.category}“ entfernt`)}
   deleteTarget=null;
 });
 $("#addButton").addEventListener("click",()=>openAddDialog());
@@ -203,16 +203,15 @@ document.querySelectorAll("[data-close]").forEach(button=>button.addEventListene
 els.addForm.addEventListener("submit",async event=>{
   event.preventDefault();if(!state.tripId)return;
   const labels=parseLabels($("#addLabels").value),owner=$("#addOwner").value,category=$("#addCategory").value.trim(),button=event.submitter;
-  if(labels.length>50){$("#addLabels").setCustomValidity("Bitte hÃ¶chstens 50 GegenstÃ¤nde auf einmal hinzufÃ¼gen.");$("#addLabels").reportValidity();return}$("#addLabels").setCustomValidity("");
+  if(labels.length>50){$("#addLabels").setCustomValidity("Bitte höchstens 50 Gegenstände auf einmal hinzufügen.");$("#addLabels").reportValidity();return}$("#addLabels").setCustomValidity("");
   if(!labels.length||!category)return;
   const now=new Date().toISOString(),base=Date.now()*100,rows=labels.map((label,index)=>({id:crypto.randomUUID(),family_id:state.familyId,trip_id:state.tripId,owner,category,label:label.slice(0,160),done:false,checked_by:null,checked_at:null,created_by:state.userName,position:base+index,created_at:now,updated_at:now,deleted_at:null})),pendingBefore=state.pending.length;
-  if(button)button.disabled=true;state.items.push(...rows);cacheItems();render();await writeRows("packing_items",rows);els.add.close();setSync(state.pending.length>pendingBefore?"offline":"online",`${rows.length} ${rows.length===1?"Gegenstand":"GegenstÃ¤nde"} zu â€ž${category}â€œ hinzugefÃ¼gt`);if(button)button.disabled=false;
+  if(button)button.disabled=true;state.items.push(...rows);cacheItems();render();await writeRows("packing_items",rows);els.add.close();setSync(state.pending.length>pendingBefore?"offline":"online",`${rows.length} ${rows.length===1?"Gegenstand":"Gegenstände"} zu „${category}“ hinzugefügt`);if(button)button.disabled=false;
 });
-els.loginForm.addEventListener("submit",async event=>{event.preventDefault();els.loginError.hidden=true;const button=event.submitter;button.disabled=true;button.textContent="Wird verbunden â€¦";try{await joinFamily($("#familyCode").value,$("#loginName").value);await loadTrips();await loadTemplates();await loadRemoteTrip();subscribe();els.login.close();els.userButton.querySelector("span").textContent=state.userName}catch(error){els.loginError.textContent=error.message.includes("UngÃ¼ltiger")?error.message:"Verbindung fehlgeschlagen. Bitte Code und Internet prÃ¼fen.";els.loginError.hidden=false}finally{button.disabled=false;button.textContent="Gemeinsame Liste Ã¶ffnen"}});
+els.loginForm.addEventListener("submit",async event=>{event.preventDefault();els.loginError.hidden=true;const button=event.submitter;button.disabled=true;button.textContent="Wird verbunden …";try{await joinFamily($("#familyCode").value,$("#loginName").value);await loadTrips();await loadTemplates();await loadRemoteTrip();subscribe();els.login.close();els.userButton.querySelector("span").textContent=state.userName}catch(error){els.loginError.textContent=error.message.includes("Ungültiger")?error.message:"Verbindung fehlgeschlagen. Bitte Code und Internet prüfen.";els.loginError.hidden=false}finally{button.disabled=false;button.textContent="Gemeinsame Liste öffnen"}});
 els.userButton.addEventListener("click",()=>{localStorage.removeItem("pack-code-ok");els.login.showModal()});
 $("#activityButton").addEventListener("click",()=>{renderEvents();els.activity.showModal()});$("#dataButton").addEventListener("click",()=>{els.dataMessage.hidden=true;renderTemplateOptions();els.data.showModal()});
-$("#saveTemplateButton").addEventListener("click",async event=>{const button=event.currentTarget,input=$("#templateName"),name=input.value.trim();if(!name){input.setCustomValidity("Bitte einen Namen fÃ¼r die Vorlage eingeben.");input.reportValidity();input.focus();return}input.setCustomValidity("");button.disabled=true;try{const template=await saveCurrentTemplate(name);input.value="";showDataMessage(`Vorlage â€ž${template.name}â€œ mit ${activeItems().length} EintrÃ¤gen gespeichert.`)}catch(error){showDataMessage(error.message,true)}finally{button.disabled=false}});
-els.tripForm.addEventListener("submit",async event=>{event.preventDefault();const button=event.submitter,sourceValue=$("#tripSource").value;let source=[];if(sourceValue==="current")source=activeItems().map(i=>({...i,done:false,checked_by:null,checked_at:null}));else if(sourceValue.startsWith("template:")){const template=state.templates.find(entry=>entry.id===sourceValue.slice(9));source=(template?.items||[]).map(item=>({...item,done:false,checked_by:null,checked_at:null,_source:"Vorlage"}))}if(button)button.disabled=true;try{const trip=await createTrip({name:$("#tripName").value.trim(),startDate:$("#tripStart").value,endDate:$("#tripEnd").value,copyItems:source});els.tripForm.reset();renderTemplateOptions();els.data.close();setSync("online",`â€ž${trip.name}â€œ wurde erstellt`)}catch(error){showDataMessage(error.message,true)}finally{if(button)button.disabled=false}});
+$("#saveTemplateButton").addEventListener("click",async event=>{const button=event.currentTarget,input=$("#templateName"),name=input.value.trim();if(!name){input.setCustomValidity("Bitte einen Namen für die Vorlage eingeben.");input.reportValidity();input.focus();return}input.setCustomValidity("");button.disabled=true;try{const template=await saveCurrentTemplate(name);input.value="";showDataMessage(`Vorlage „${template.name}“ mit ${activeItems().length} Einträgen gespeichert.`)}catch(error){showDataMessage(error.message,true)}finally{button.disabled=false}});
+els.tripForm.addEventListener("submit",async event=>{event.preventDefault();const button=event.submitter,sourceValue=$("#tripSource").value;let source=[];if(sourceValue==="current")source=activeItems().map(i=>({...i,done:false,checked_by:null,checked_at:null}));else if(sourceValue.startsWith("template:")){const template=state.templates.find(entry=>entry.id===sourceValue.slice(9));source=(template?.items||[]).map(item=>({...item,done:false,checked_by:null,checked_at:null,_source:"Vorlage"}))}if(button)button.disabled=true;try{const trip=await createTrip({name:$("#tripName").value.trim(),startDate:$("#tripStart").value,endDate:$("#tripEnd").value,copyItems:source});els.tripForm.reset();renderTemplateOptions();els.data.close();setSync("online",`„${trip.name}“ wurde erstellt`)}catch(error){showDataMessage(error.message,true)}finally{if(button)button.disabled=false}});
 $("#exportButton").addEventListener("click",()=>exportTrip().catch(error=>showDataMessage(error.message,true)));$("#importButton").addEventListener("click",()=>$("#importFile").click());$("#importFile").addEventListener("change",async event=>{const file=event.target.files[0];if(!file)return;try{await importTrip(file)}catch(error){showDataMessage(error.message,true)}finally{event.target.value=""}});
-window.addEventListener("online",flushPending);window.addEventListener("offline",()=>setSync("offline","Offline â€“ Ã„nderungen werden vorgemerkt"));if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));boot();
-
+window.addEventListener("online",flushPending);window.addEventListener("offline",()=>setSync("offline","Offline – Änderungen werden vorgemerkt"));if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));boot();
