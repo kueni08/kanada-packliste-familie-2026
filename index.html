@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#c43b2f">
+  <meta name="description" content="Gemeinsame Kanada-Packliste der Familie">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="extras.css">
+  <title>Kanada-Packliste 2026</title>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__top">
+      <div>
+        <p class="eyebrow">21. Juli – 11. August 2026</p>
+        <h1>Kanada, wir kommen!</h1>
+      </div>
+      <button id="userButton" class="user-button" type="button" aria-label="Benutzer wechseln">👤 <span>Gast</span></button>
+    </div>
+    <div class="overall-progress" aria-label="Gesamtfortschritt">
+      <div class="overall-progress__copy"><span id="overallLabel">Noch nichts gepackt</span><strong id="overallPercent">0 %</strong></div>
+      <div class="progress-track"><div id="overallBar" class="progress-bar"></div></div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <div id="syncBanner" class="sync-banner" role="status" aria-live="polite">
+      <span class="sync-dot"></span><span>Verbindung wird hergestellt …</span>
+    </div>
+
+    <nav id="ownerTabs" class="tabs" aria-label="Packlisten"></nav>
+
+    <section class="tripbar" aria-label="Reise und Daten">
+      <label><span>Aktuelle Reise</span><select id="tripSelect" aria-label="Aktuelle Reise auswählen"></select></label>
+      <button id="activityButton" class="compact-button" type="button">↻ Aktivität</button>
+      <button id="dataButton" class="compact-button" type="button">⇄ Reisen & Daten</button>
+    </section>
+
+    <section class="toolbar" aria-label="Listenfilter">
+      <label class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="Eintrag suchen …"></label>
+      <select id="statusFilter" aria-label="Status filtern">
+        <option value="all">Alle</option>
+        <option value="open">Nur offen</option>
+        <option value="done">Erledigt</option>
+      </select>
+    </section>
+
+    <section id="list" class="list" aria-live="polite"></section>
+
+    <button id="addButton" class="fab" type="button" aria-label="Neuen Eintrag hinzufügen">＋</button>
+  </main>
+
+  <dialog id="loginDialog" class="modal" data-static="true">
+    <form id="loginForm" method="dialog">
+      <div class="modal__icon">🍁</div>
+      <h2>Willkommen zur Familien-Packliste</h2>
+      <p>Wähle deinen Namen und gib den gemeinsamen Familiencode ein.</p>
+      <label>Wer bist du?
+        <select id="loginName" required>
+          <option value="">Bitte wählen</option>
+          <option>Marc</option><option>Nici</option><option>Nils</option><option>Lou</option>
+        </select>
+      </label>
+      <label>Familiencode
+        <input id="familyCode" type="password" autocomplete="off" autocapitalize="characters" required placeholder="KANADA-…">
+      </label>
+      <p id="loginError" class="form-error" hidden></p>
+      <button class="primary" type="submit">Gemeinsame Liste öffnen</button>
+      <small>Der Code bleibt nur auf diesem Gerät gespeichert.</small>
+    </form>
+  </dialog>
+
+  <dialog id="addDialog" class="modal">
+    <form id="addForm" method="dialog">
+      <h2>Eintrag hinzufügen</h2>
+      <label>Liste<select id="addOwner" required></select></label>
+      <label>Kategorie<input id="addCategory" required list="categorySuggestions" placeholder="z. B. Kleidung"></label>
+      <datalist id="categorySuggestions"></datalist>
+      <label>Was muss mit?<input id="addLabel" required maxlength="120" placeholder="Eintrag"></label>
+      <div class="modal__actions">
+        <button class="secondary" value="cancel" type="button" data-close>Abbrechen</button>
+        <button class="primary" type="submit">Hinzufügen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="confirmDialog" class="modal modal--small">
+    <form method="dialog">
+      <h2>Eintrag löschen?</h2>
+      <p id="confirmText"></p>
+      <div class="modal__actions">
+        <button class="secondary" value="cancel">Abbrechen</button>
+        <button id="confirmDelete" class="danger" value="confirm">Löschen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="activityDialog" class="modal modal--wide">
+    <form method="dialog">
+      <div class="dialog-heading"><div><p class="dialog-kicker">Nachverfolgung</p><h2>Letzte Aktivitäten</h2></div><button class="icon-button" value="close" aria-label="Schließen">×</button></div>
+      <div id="activityList" class="activity-list"></div>
+    </form>
+  </dialog>
+
+  <dialog id="dataDialog" class="modal modal--wide">
+    <form id="tripForm" method="dialog">
+      <div class="dialog-heading"><div><p class="dialog-kicker">Für heute und später</p><h2>Reisen & Datenaustausch</h2></div><button class="icon-button" type="button" data-close value="cancel" aria-label="Schließen">×</button></div>
+      <section class="modal-section">
+        <h3>Neue Reise anlegen</h3>
+        <label>Name der Reise<input id="tripName" required maxlength="80" placeholder="z. B. Italien 2027"></label>
+        <div class="date-grid"><label>Von<input id="tripStart" type="date"></label><label>Bis<input id="tripEnd" type="date"></label></div>
+        <label class="checkline"><input id="copyCurrent" type="checkbox" checked> Einträge der aktuellen Reise als Vorlage kopieren</label>
+        <button class="primary" type="submit">Reise erstellen</button>
+      </section>
+      <section class="modal-section">
+        <h3>Import & Export</h3>
+        <p>Speichere eine Reise als Datei oder importiere eine frühere Packliste. Häkchen und persönliche Tracking-Daten können auf Wunsch mitgeführt werden.</p>
+        <label class="checkline"><input id="includeProgress" type="checkbox"> Erledigungsstand und Namen mit exportieren</label>
+        <div class="button-grid"><button id="exportButton" class="secondary" type="button">Exportieren / Teilen</button><button id="importButton" class="secondary" type="button">Datei importieren</button></div>
+        <input id="importFile" type="file" accept="application/json,.json" hidden>
+        <p id="dataMessage" class="data-message" hidden></p>
+      </section>
+    </form>
+  </dialog>
+
+  <template id="emptyTemplate">
+    <div class="empty"><span>🧳</span><h2>Hier ist gerade nichts offen</h2><p>Ändere den Filter oder ergänze einen eigenen Eintrag.</p></div>
+  </template>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
