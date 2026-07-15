@@ -49,6 +49,7 @@
     </section>
 
     <button id="addGroupButton" class="add-group-button" type="button">＋ Neue Gruppe</button>
+    <p class="sort-hint">⠿ Am Griff halten und ziehen, um Gruppen oder Gegenstände zu verschieben. Verfügbar bei Filter „Alle“ ohne Suche.</p>
 
     <section id="list" class="list" aria-live="polite"></section>
 
@@ -118,8 +119,15 @@
         <h3>Neue Reise anlegen</h3>
         <label>Name der Reise<input id="tripName" required maxlength="80" placeholder="z. B. Italien 2027"></label>
         <div class="date-grid"><label>Von<input id="tripStart" type="date"></label><label>Bis<input id="tripEnd" type="date"></label></div>
-        <label class="checkline"><input id="copyCurrent" type="checkbox" checked> Einträge der aktuellen Reise als Vorlage kopieren</label>
+        <label>Startinhalt<select id="tripSource"><option value="current">Aktuelle Liste kopieren</option><option value="empty">Leere Reise</option></select></label>
         <button class="primary" type="submit">Reise erstellen</button>
+      </section>
+      <section class="modal-section">
+        <h3>Gemeinsame Vorlagen</h3>
+        <p>Speichere die aktuelle Liste ohne Häkchen als Vorlage. Sie steht danach allen Familienmitgliedern bei einer neuen Reise zur Auswahl.</p>
+        <label>Name der Vorlage<input id="templateName" maxlength="80" placeholder="z. B. Familienurlaub mit Camper"></label>
+        <button id="saveTemplateButton" class="secondary" type="button">Aktuelle Liste als Vorlage speichern</button>
+        <p id="templateSummary" class="template-summary">Noch keine gemeinsame Vorlage gespeichert.</p>
       </section>
       <section class="modal-section">
         <h3>Import & Export</h3>
@@ -137,6 +145,7 @@
   </template>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
   <script src="config.js"></script>
   <script type="module" src="app.js"></script>
 </body>
