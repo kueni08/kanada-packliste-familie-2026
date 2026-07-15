@@ -48,9 +48,11 @@
       </select>
     </section>
 
+    <button id="addGroupButton" class="add-group-button" type="button">＋ Neue Gruppe</button>
+
     <section id="list" class="list" aria-live="polite"></section>
 
-    <button id="addButton" class="fab" type="button" aria-label="Neuen Eintrag hinzufügen">＋</button>
+    <button id="addButton" class="fab" type="button" aria-label="Mehrere Gegenstände hinzufügen">＋</button>
   </main>
 
   <dialog id="loginDialog" class="modal" data-static="true">
@@ -75,21 +77,25 @@
 
   <dialog id="addDialog" class="modal">
     <form id="addForm" method="dialog">
-      <h2>Eintrag hinzufügen</h2>
+      <h2 id="addTitle">Mehrere Dinge ergänzen</h2>
       <label>Liste<select id="addOwner" required></select></label>
-      <label>Kategorie<input id="addCategory" required list="categorySuggestions" placeholder="z. B. Kleidung"></label>
+      <label>Gruppe<input id="addCategory" required maxlength="80" list="categorySuggestions" placeholder="z. B. Kleidung"></label>
       <datalist id="categorySuggestions"></datalist>
-      <label>Was muss mit?<input id="addLabel" required maxlength="120" placeholder="Eintrag"></label>
+      <label>Was muss mit?
+        <textarea id="addLabels" required maxlength="3000" rows="7" placeholder="T-Shirts&#10;Socken&#10;Regenjacke"></textarea>
+      </label>
+      <p class="form-hint">Mehrere Gegenstände untereinander oder mit Komma bzw. Semikolon eingeben.</p>
+      <p id="addPreview" class="add-preview">Noch keine Gegenstände eingegeben.</p>
       <div class="modal__actions">
         <button class="secondary" value="cancel" type="button" data-close>Abbrechen</button>
-        <button class="primary" type="submit">Hinzufügen</button>
+        <button id="addSubmit" class="primary" type="submit">Alle hinzufügen</button>
       </div>
     </form>
   </dialog>
 
   <dialog id="confirmDialog" class="modal modal--small">
     <form method="dialog">
-      <h2>Eintrag löschen?</h2>
+      <h2 id="confirmTitle">Eintrag löschen?</h2>
       <p id="confirmText"></p>
       <div class="modal__actions">
         <button class="secondary" value="cancel">Abbrechen</button>
@@ -135,3 +141,4 @@
   <script type="module" src="app.js"></script>
 </body>
 </html>
+
