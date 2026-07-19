@@ -3,3 +3,123 @@
 .add-group-button{margin-bottom:7px}
 .sort-hint{margin:0 2px 13px;color:var(--muted);font-size:.72rem;line-height:1.35}
 
+/* Pastell-Kanada PWA theme */
+:root{
+  --red:#dc6877;
+  --red-dark:#9d4355;
+  --ink:#34414d;
+  --muted:#707782;
+  --cream:#fffaf7;
+  --line:rgba(106,93,111,.18);
+  --green:#559d89;
+  --rainbow:linear-gradient(110deg,#ffd1dc 0%,#ffe5be 24%,#d9f2d7 48%,#cfe9ff 72%,#e5d7ff 100%);
+}
+html{background:#fff8f5}
+body{
+  position:relative;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 15% 12%,rgba(255,205,221,.72),transparent 28%),
+    radial-gradient(circle at 84% 28%,rgba(202,234,255,.72),transparent 30%),
+    radial-gradient(circle at 30% 78%,rgba(215,244,216,.68),transparent 32%),
+    linear-gradient(145deg,#fff8f5 0%,#f8f5ff 50%,#f3fbfb 100%);
+  background-attachment:fixed;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:conic-gradient(from 215deg at 70% 30%,rgba(255,190,209,.2),rgba(255,230,183,.2),rgba(199,237,213,.2),rgba(199,226,255,.2),rgba(224,204,255,.2),rgba(255,190,209,.2));
+  filter:saturate(.9);
+}
+.hero{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background:
+    linear-gradient(112deg,rgba(151,55,72,.86),rgba(218,102,119,.73) 48%,rgba(124,76,135,.64)),
+    url("canada-flag.svg") center 43%/cover no-repeat;
+  box-shadow:0 16px 42px rgba(122,67,91,.2);
+}
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:-55% -15% auto 35%;
+  height:190%;
+  z-index:-1;
+  transform:rotate(16deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);
+  animation:hero-shimmer 9s ease-in-out infinite;
+}
+.hero::after{
+  content:"🍁";
+  position:absolute;
+  right:4%;
+  bottom:-28px;
+  z-index:-1;
+  font-size:clamp(6rem,22vw,12rem);
+  opacity:.1;
+  filter:grayscale(1) brightness(3);
+  transform:rotate(-11deg);
+}
+.hero__top{align-items:center}
+.hero__actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.user-button,.install-button{
+  border:1px solid rgba(255,255,255,.42);
+  background:rgba(255,255,255,.18);
+  color:#fff;
+  border-radius:999px;
+  padding:9px 12px;
+  font:750 .82rem inherit;
+  white-space:nowrap;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 7px 18px rgba(74,37,53,.13);
+  backdrop-filter:blur(12px);
+}
+.install-button{background:rgba(255,255,255,.88);color:#914454;border-color:rgba(255,255,255,.74)}
+.install-button[hidden]{display:none!important}
+.progress-track{background:rgba(255,255,255,.24);box-shadow:inset 0 1px 3px rgba(78,33,52,.12)}
+.progress-bar{background:linear-gradient(90deg,#fff,#ffe5c7,#d8f3df,#d9eaff,#eadcff);box-shadow:0 0 16px rgba(255,255,255,.5)}
+.app-shell{isolation:isolate}
+.sync-banner{
+  width:max-content;
+  max-width:100%;
+  margin:0 auto 4px;
+  padding:5px 11px;
+  border:1px solid rgba(255,255,255,.72);
+  border-radius:999px;
+  background:rgba(255,255,255,.55);
+  box-shadow:0 5px 18px rgba(98,79,109,.06);
+  backdrop-filter:blur(12px);
+}
+.tab,.tripbar select,.compact-button,.search,.toolbar select,.add-group-button,.category{
+  border-color:rgba(112,94,118,.17);
+  background:rgba(255,255,255,.72);
+  box-shadow:0 8px 24px rgba(95,76,110,.07),inset 0 1px 0 rgba(255,255,255,.85);
+  backdrop-filter:blur(16px);
+}
+.tab.active{background:linear-gradient(120deg,#45545d,#6d596f);border-color:transparent;box-shadow:0 8px 20px rgba(74,67,89,.2)}
+.category{overflow:hidden;background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(255,255,255,.62))}
+.category summary{background:linear-gradient(90deg,rgba(255,220,229,.32),rgba(226,240,255,.28),rgba(224,244,229,.24))}
+.category-tools{background:rgba(255,255,255,.34)}
+.group-add{background:linear-gradient(110deg,#e6f8ef,#e2f4fb);color:#3f8275}
+.group-delete{background:linear-gradient(110deg,#fff1ef,#ffeef4)}
+.item{background:rgba(255,255,255,.78)}
+.item:hover{background:rgba(255,255,255,.94)}
+.drag-handle{background:linear-gradient(145deg,#f4e8df,#e9e5f3);color:#746b79}
+.fab{background:linear-gradient(145deg,#e46c7c,#c44f6d 58%,#8d577f);box-shadow:0 14px 32px rgba(168,69,96,.34),inset 0 1px 0 rgba(255,255,255,.25)}
+.primary{background:linear-gradient(120deg,#dc6877,#bd5571 58%,#8f5b86);box-shadow:0 8px 18px rgba(166,73,101,.2)}
+.secondary{background:linear-gradient(120deg,#f4edf3,#eaf3f6)}
+.modal{background:linear-gradient(145deg,rgba(255,252,249,.98),rgba(249,247,255,.98));border:1px solid rgba(255,255,255,.85)}
+.modal::backdrop{background:rgba(53,49,62,.5);backdrop-filter:blur(7px)}
+.install-benefits{display:grid;gap:8px;padding:13px;border-radius:14px;background:var(--rainbow);color:#4f5962;font-size:.85rem;font-weight:750}
+.empty span{filter:drop-shadow(0 7px 11px rgba(125,84,105,.16))}
+@keyframes hero-shimmer{0%,100%{transform:translateX(-18%) rotate(16deg);opacity:.35}50%{transform:translateX(35%) rotate(16deg);opacity:.75}}
+@media(max-width:620px){
+  .hero__top{align-items:flex-start}
+  .hero__actions{max-width:48%;gap:6px}
+  .install-button,.user-button{padding:8px 10px;font-size:.72rem}
+  .app-shell{padding-top:12px}
+}
+@media(prefers-reduced-motion:reduce){.hero::before{animation:none}.progress-bar{transition:none}}

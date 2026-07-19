@@ -3,12 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#c43b2f">
+  <meta name="theme-color" content="#d86f7d">
   <meta name="description" content="Gemeinsame Kanada-Packliste der Familie">
-  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kanada Packen">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.webmanifest?v=9">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="extras.css">
+  <link rel="stylesheet" href="extras.css?v=9">
   <title>Kanada-Packliste 2026</title>
 </head>
 <body>
@@ -18,7 +23,10 @@
         <p class="eyebrow">21. Juli – 11. August 2026</p>
         <h1>Kanada, wir kommen!</h1>
       </div>
-      <button id="userButton" class="user-button" type="button" aria-label="Benutzer wechseln">👤 <span>Gast</span></button>
+      <div class="hero__actions">
+        <button id="installButton" class="install-button" type="button">↓ App installieren</button>
+        <button id="userButton" class="user-button" type="button" aria-label="Benutzer wechseln">👤 <span>Gast</span></button>
+      </div>
     </div>
     <div class="overall-progress" aria-label="Gesamtfortschritt">
       <div class="overall-progress__copy"><span id="overallLabel">Noch nichts gepackt</span><strong id="overallPercent">0 %</strong></div>
@@ -73,6 +81,20 @@
       <p id="loginError" class="form-error" hidden></p>
       <button class="primary" type="submit">Gemeinsame Liste öffnen</button>
       <small>Der Code bleibt nur auf diesem Gerät gespeichert.</small>
+    </form>
+  </dialog>
+
+  <dialog id="installDialog" class="modal modal--small">
+    <form method="dialog">
+      <div class="modal__icon">🍁</div>
+      <h2>Packliste als App installieren</h2>
+      <p id="installHelpText">Öffne das Browser-Menü und wähle „App installieren“ oder „Zum Startbildschirm hinzufügen“.</p>
+      <div class="install-benefits">
+        <span>✓ Startbildschirm-Symbol</span>
+        <span>✓ Vollbild wie eine App</span>
+        <span>✓ Liste auch offline verfügbar</span>
+      </div>
+      <button class="primary" type="button" data-close>Verstanden</button>
     </form>
   </dialog>
 
@@ -144,9 +166,9 @@
     <div class="empty"><span>🧳</span><h2>Hier ist gerade nichts offen</h2><p>Ändere den Filter oder ergänze einen eigenen Eintrag.</p></div>
   </template>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.min.js?v=1"></script>
   <script src="sortable.min.js?v=2"></script>
   <script src="config.js"></script>
-  <script type="module" src="app.js?v=8"></script>
+  <script type="module" src="app.js?v=9"></script>
 </body>
 </html>

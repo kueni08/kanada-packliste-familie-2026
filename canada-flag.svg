@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Pastellfarbene Kanadaflagge">
+  <defs>
+    <linearGradient id="side" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f49aa9"/>
+      <stop offset="1" stop-color="#e77988"/>
+    </linearGradient>
+    <linearGradient id="center" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fffaf7"/>
+      <stop offset=".5" stop-color="#fff2f5"/>
+      <stop offset="1" stop-color="#f5f4ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="600" fill="url(#side)"/>
+  <rect x="300" width="600" height="600" fill="url(#center)"/>
+  <rect x="900" width="300" height="600" fill="url(#side)"/>
+  <path fill="#dc6877" opacity=".88" transform="translate(344 76) scale(1.02)" d="M256 70l28 58 45-24-8 55 57 8-43 43 31 29-82 15 12 98h-80l12-98-82-15 31-29-43-43 57-8-8-55 45 24z"/>
+</svg>

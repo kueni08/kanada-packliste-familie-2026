@@ -214,4 +214,30 @@ $("#activityButton").addEventListener("click",()=>{renderEvents();els.activity.s
 $("#saveTemplateButton").addEventListener("click",async event=>{const button=event.currentTarget,input=$("#templateName"),name=input.value.trim();if(!name){input.setCustomValidity("Bitte einen Namen für die Vorlage eingeben.");input.reportValidity();input.focus();return}input.setCustomValidity("");button.disabled=true;try{const template=await saveCurrentTemplate(name);input.value="";showDataMessage(`Vorlage „${template.name}“ mit ${activeItems().length} Einträgen gespeichert.`)}catch(error){showDataMessage(error.message,true)}finally{button.disabled=false}});
 els.tripForm.addEventListener("submit",async event=>{event.preventDefault();const button=event.submitter,sourceValue=$("#tripSource").value;let source=[];if(sourceValue==="current")source=activeItems().map(i=>({...i,done:false,checked_by:null,checked_at:null}));else if(sourceValue.startsWith("template:")){const template=state.templates.find(entry=>entry.id===sourceValue.slice(9));source=(template?.items||[]).map(item=>({...item,done:false,checked_by:null,checked_at:null,_source:"Vorlage"}))}if(button)button.disabled=true;try{const trip=await createTrip({name:$("#tripName").value.trim(),startDate:$("#tripStart").value,endDate:$("#tripEnd").value,copyItems:source});els.tripForm.reset();renderTemplateOptions();els.data.close();setSync("online",`„${trip.name}“ wurde erstellt`)}catch(error){showDataMessage(error.message,true)}finally{if(button)button.disabled=false}});
 $("#exportButton").addEventListener("click",()=>exportTrip().catch(error=>showDataMessage(error.message,true)));$("#importButton").addEventListener("click",()=>$("#importFile").click());$("#importFile").addEventListener("change",async event=>{const file=event.target.files[0];if(!file)return;try{await importTrip(file)}catch(error){showDataMessage(error.message,true)}finally{event.target.value=""}});
-window.addEventListener("online",flushPending);window.addEventListener("offline",()=>setSync("offline","Offline – Änderungen werden vorgemerkt"));if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));boot();
+window.addEventListener("online",flushPending);window.addEventListener("offline",()=>setSync("offline","Offline – Änderungen werden vorgemerkt"));
+
+let deferredInstallPrompt=null;
+function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true}
+function setupPwaInstall(){
+  const button=$("#installButton"),dialog=$("#installDialog"),help=$("#installHelpText");
+  if(!button||!dialog)return;
+  button.hidden=isStandalone();
+  window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();deferredInstallPrompt=event;button.hidden=false});
+  window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;button.hidden=true;setSync("online","App wurde installiert")});
+  button.addEventListener("click",async()=>{
+    if(deferredInstallPrompt){
+      deferredInstallPrompt.prompt();
+      const result=await deferredInstallPrompt.userChoice;
+      if(result.outcome==="accepted")button.hidden=true;
+      deferredInstallPrompt=null;
+      return;
+    }
+    const ios=/iPad|iPhone|iPod/.test(navigator.userAgent);
+    help.textContent=ios?"Tippe in Safari auf Teilen und danach auf Zum Home-Bildschirm.":"Öffne das Browser-Menü und wähle App installieren oder Zum Startbildschirm hinzufügen.";
+    dialog.showModal();
+  });
+}
+
+setupPwaInstall();
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").then(registration=>registration.update()).catch(console.error));
+boot();
